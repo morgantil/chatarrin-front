@@ -9,12 +9,27 @@ import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { LogisticsCarousel } from '@/components/logistics/LogisticsCarousel';
 import { ReviewForm } from '@/components/reviews/ReviewForm';
 import { VisibilityBadge } from '@/components/publications/VisibilityBadge';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { MapPin, Weight, Eye, Calendar, MessageCircle, ShieldCheck, DollarSign } from 'lucide-react';
+import { MapPin, Weight, Eye, Calendar, MessageCircle, ShieldCheck, ArrowLeft, CheckCircle, XCircle, Clock, Share2 } from 'lucide-react';
 import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
+
+function formatPrice(price?: number, isNegotiable?: boolean) {
+  if (!price) return isNegotiable ? 'A convenir' : 'Sin precio';
+  const formatted = new Intl.NumberFormat('es-AR', {
+    style: 'currency',
+    currency: 'ARS',
+    maximumFractionDigits: 0,
+  }).format(price);
+  return isNegotiable ? `${formatted} (neg.)` : formatted;
+}
+
+function formatDate(dateStr: string) {
+  return new Date(dateStr).toLocaleDateString('es-AR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+}
 
 export default function PublicationDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -22,190 +37,239 @@ export default function PublicationDetailPage() {
   const { isLoggedIn } = useAuth();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
+  const [activePhoto, setActivePhoto] = useState(0);
   const [paymentMessage, setPaymentMessage] = useState<{
     type: 'success' | 'error' | 'pending';
     text: string;
   } | null>(null);
 
-  // Detectar el resultado del pago cuando MercadoPago redirige de vuelta
   useEffect(() => {
     const pago = searchParams.get('pago');
-
     if (pago === 'ok') {
-      setPaymentMessage({
-        type: 'success',
-        text: '¡Pago aprobado! Tu publicación ya tiene mayor visibilidad. Puede tardar unos segundos en actualizarse.',
-      });
-      setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ['publication', id] });
-      }, 3000);
+      setPaymentMessage({ type: 'success', text: '¡Pago aprobado! Tu publicación ya tiene mayor visibilidad.' });
+      setTimeout(() => queryClient.invalidateQueries({ queryKey: ['publication', id] }), 3000);
     } else if (pago === 'error') {
-      setPaymentMessage({
-        type: 'error',
-        text: 'El pago no pudo procesarse. Podés intentarlo de nuevo desde tu panel.',
-      });
+      setPaymentMessage({ type: 'error', text: 'El pago no pudo procesarse. Podés intentarlo de nuevo desde tu panel.' });
     } else if (pago === 'pendiente') {
-      setPaymentMessage({
-        type: 'pending',
-        text: 'El pago está pendiente de confirmación. Te avisaremos cuando se acredite.',
-      });
+      setPaymentMessage({ type: 'pending', text: 'El pago está pendiente de confirmación. Te avisaremos cuando se acredite.' });
     }
   }, [searchParams, queryClient, id]);
 
   if (isLoading) return <LoadingSpinner />;
-  if (error || !pub) return <p className="text-red-500 text-sm">Publicación no encontrada</p>;
+  if (error || !pub) return (
+    <div className="max-w-4xl mx-auto py-16 text-center">
+      <p className="text-muted-foreground">Publicación no encontrada.</p>
+      <Link href="/publicaciones" className="text-brand text-sm hover:underline mt-2 inline-block">
+        ← Volver al listado
+      </Link>
+    </div>
+  );
 
-  const formatDate = (dateStr: string) =>
-    new Date(dateStr).toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' });
-
-  const formatPrice = (price?: number, isNegotiable?: boolean) => {
-    if (!price) return isNegotiable ? 'A convenir' : 'Sin precio';
-    const formatted = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(price);
-    return isNegotiable ? `${formatted} (negociable)` : formatted;
+  const paymentStyles = {
+    success: { bg: 'bg-green-50 dark:bg-green-950/40 border-green-200 dark:border-green-800', text: 'text-green-700 dark:text-green-400', Icon: CheckCircle },
+    error:   { bg: 'bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-800',     text: 'text-red-700 dark:text-red-400',     Icon: XCircle },
+    pending: { bg: 'bg-yellow-50 dark:bg-yellow-950/40 border-yellow-200 dark:border-yellow-800', text: 'text-yellow-700 dark:text-yellow-400', Icon: Clock },
   };
 
   return (
-    <div className="max-w-4xl mx-auto flex flex-col gap-8">
-      {/* Banner de resultado de pago */}
-      {paymentMessage && (
-        <div className={`p-4 rounded-lg border flex items-start gap-3 ${
-          paymentMessage.type === 'success'
-            ? 'bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800'
-            : paymentMessage.type === 'error'
-            ? 'bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800'
-            : 'bg-yellow-50 dark:bg-yellow-950 border-yellow-200 dark:border-yellow-800'
-        }`}>
-          <span className="text-xl flex-shrink-0">
-            {paymentMessage.type === 'success' ? '✅' : paymentMessage.type === 'error' ? '❌' : '⏳'}
-          </span>
-          <div>
-            <p className={`text-sm font-medium ${
-              paymentMessage.type === 'success'
-                ? 'text-green-700 dark:text-green-300'
-                : paymentMessage.type === 'error'
-                ? 'text-red-700 dark:text-red-300'
-                : 'text-yellow-700 dark:text-yellow-300'
-            }`}>
-              {paymentMessage.text}
-            </p>
-            {paymentMessage.type === 'success' && (
-              <p className="text-xs text-green-600 dark:text-green-400 mt-1">
-                Podés ver tu publicación actualizada en tu panel.
-              </p>
-            )}
+    <div className="max-w-4xl mx-auto flex flex-col gap-8 py-2">
+
+      {/* Resultado de pago */}
+      {paymentMessage && (() => {
+        const s = paymentStyles[paymentMessage.type];
+        return (
+          <div className={`flex items-start gap-3 p-4 rounded-xl border ${s.bg}`}>
+            <s.Icon className={`h-5 w-5 shrink-0 mt-0.5 ${s.text}`} />
+            <p className={`text-sm font-medium ${s.text}`}>{paymentMessage.text}</p>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
-      {/* Header */}
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs font-semibold uppercase tracking-wide text-brand">
-            {pub.category.name}
-          </span>
-          <VisibilityBadge visibility={pub.visibility} />
-          <Badge variant={pub.status === 'ACTIVE' ? 'default' : 'secondary'}>
-            {pub.status === 'ACTIVE' ? 'Activo' : pub.status === 'SOLD' ? 'Vendido' : 'Pausado'}
-          </Badge>
-        </div>
-        <h1 className="text-2xl font-bold">{pub.title || pub.description}</h1>
-        {pub.title && <p className="text-sm text-muted-foreground">{pub.description}</p>}
-      </div>
+      {/* Back */}
+      <Link
+        href="/publicaciones"
+        className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors w-fit"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Publicaciones
+      </Link>
 
-      {/* Grid: foto + info */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Fotos */}
+      {/* Grid principal */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+
+        {/* Columna fotos */}
         <div className="flex flex-col gap-2">
-          {pub.photos[0] ? (
-            <div className="relative aspect-square rounded-lg overflow-hidden bg-muted">
-              <Image src={pub.photos[0]} alt={pub.description}
-                fill className="object-cover" />
+          <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-secondary">
+            {pub.photos[activePhoto] ? (
+              <Image
+                src={pub.photos[activePhoto]}
+                alt={pub.description}
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm">
+                Sin foto
+              </div>
+            )}
+            <div className="absolute top-3 left-3">
+              <VisibilityBadge visibility={pub.visibility} />
             </div>
-          ) : (
-            <div className="aspect-square rounded-lg bg-muted flex items-center justify-center text-muted-foreground">
-              Sin foto
-            </div>
-          )}
+          </div>
+
           {pub.photos.length > 1 && (
-            <div className="flex gap-2 overflow-x-auto">
-              {pub.photos.slice(1).map((photo, i) => (
-                <div key={i} className="relative w-20 h-20 rounded-md overflow-hidden bg-muted flex-shrink-0">
-                  <Image src={photo} alt={`Foto ${i + 2}`} fill className="object-cover" />
-                </div>
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+              {pub.photos.map((photo, i) => (
+                <button
+                  key={i}
+                  onClick={() => setActivePhoto(i)}
+                  className={`relative shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-colors ${
+                    i === activePhoto ? 'border-brand' : 'border-transparent hover:border-border'
+                  }`}
+                >
+                  <Image src={photo} alt="" fill sizes="64px" className="object-cover" />
+                </button>
               ))}
             </div>
           )}
         </div>
 
-        {/* Info */}
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-2">
-            <p className="text-3xl font-bold">{formatPrice(pub.priceArs, pub.isNegotiable)}</p>
-            <p className="text-sm text-muted-foreground">
-              {pub.isNegotiable ? 'Precio negociable' : 'Precio fijo'}
+        {/* Columna info */}
+        <div className="flex flex-col gap-5">
+
+          {/* Categoría + estado */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-brand">
+              {pub.category.name}
+            </span>
+            <span className={`text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full border ${
+              pub.status === 'ACTIVE'
+                ? 'text-green-700 bg-green-50 border-green-200 dark:text-green-400 dark:bg-green-950/40 dark:border-green-800'
+                : 'text-muted-foreground bg-secondary border-border'
+            }`}>
+              {pub.status === 'ACTIVE' ? 'Activo' : pub.status === 'SOLD' ? 'Vendido' : 'Pausado'}
+            </span>
+          </div>
+
+          {/* Título */}
+          <h1 className="text-xl font-black text-foreground leading-tight">
+            {pub.title || pub.description}
+          </h1>
+          {pub.title && (
+            <p className="text-sm text-muted-foreground -mt-3 leading-relaxed">{pub.description}</p>
+          )}
+
+          {/* Precio */}
+          <div className="bg-secondary rounded-2xl p-4 border border-border">
+            <p className="text-3xl font-black text-foreground">
+              {formatPrice(pub.priceArs, pub.isNegotiable)}
             </p>
-          </div>
-
-          <Separator />
-
-          <div className="grid grid-cols-2 gap-3 text-sm">
-            <div className="flex items-center gap-2">
-              <Weight className="h-4 w-4 text-muted-foreground" />
-              <span>{pub.weightKg} kg</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-muted-foreground" />
-              <span>{pub.province}{pub.locality ? `, ${pub.locality}` : ''}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Eye className="h-4 w-4 text-muted-foreground" />
-              <span>{pub.visitCount} visitas</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              <span>{formatDate(pub.createdAt)}</span>
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* Vendedor */}
-          <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium">Vendedor</p>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs font-bold">
-                {pub.seller.name.charAt(0).toUpperCase()}
-              </div>
-              <div>
-                <Link href={`/vendedores/${pub.seller.id}`}
-                  className="text-sm font-medium flex items-center gap-1 hover:text-brand transition-colors">
-                  {pub.seller.name}
-                  {pub.seller.isVerified && <ShieldCheck className="h-3 w-3 text-green-500" />}
-                </Link>
-                <p className="text-xs text-muted-foreground">{pub.seller.province}</p>
-              </div>
-            </div>
-
-            {isLoggedIn && pub.seller.whatsapp ? (
-              <Button size="sm" className="gap-2 bg-green-600 hover:bg-green-700 text-white w-fit"
-                onClick={() => window.open(`https://wa.me/54${pub.seller.whatsapp}`, '_blank')}>
-                <MessageCircle className="h-4 w-4" /> Contactar por WhatsApp
-              </Button>
-            ) : (
-              <p className="text-xs text-muted-foreground italic">
-                Iniciá sesión para ver el contacto del vendedor
+            {pub.isNegotiable && (
+              <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                <CheckCircle className="h-3.5 w-3.5 text-green-500" />
+                Precio negociable
               </p>
             )}
           </div>
+
+          {/* Specs */}
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              { icon: Weight,   label: 'Peso',       value: `${pub.weightKg} kg` },
+              { icon: MapPin,   label: 'Ubicación',  value: `${pub.province}${pub.locality ? `, ${pub.locality}` : ''}` },
+              { icon: Eye,      label: 'Visitas',    value: `${pub.visitCount}` },
+              { icon: Calendar, label: 'Publicado',  value: formatDate(pub.createdAt) },
+            ].map(({ icon: Icon, label, value }) => (
+              <div key={label} className="bg-secondary rounded-xl p-3 border border-border">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <Icon className="h-3 w-3 text-muted-foreground" />
+                  <span className="text-[10px] uppercase tracking-wide font-semibold text-muted-foreground">{label}</span>
+                </div>
+                <p className="text-sm font-semibold text-foreground truncate">{value}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Vendedor */}
+          <div className="border border-border rounded-2xl p-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-brand/10 flex items-center justify-center text-base font-black text-brand shrink-0">
+              {pub.seller.name.charAt(0).toUpperCase()}
+            </div>
+            <div className="flex-1 min-w-0">
+              <Link
+                href={`/vendedores/${pub.seller.id}`}
+                className="text-sm font-bold text-foreground hover:text-brand transition-colors flex items-center gap-1.5"
+              >
+                {pub.seller.name}
+                {pub.seller.isVerified && (
+                  <ShieldCheck className="h-3.5 w-3.5 text-green-500 shrink-0" />
+                )}
+              </Link>
+              <p className="text-xs text-muted-foreground">{pub.seller.province}</p>
+            </div>
+            <Link
+              href={`/vendedores/${pub.seller.id}`}
+              className="text-xs text-brand font-medium hover:underline shrink-0"
+            >
+              Ver perfil →
+            </Link>
+          </div>
+
+          {/* Contacto */}
+          {isLoggedIn ? (
+            pub.seller.whatsapp ? (
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={() => {
+                    const msg = encodeURIComponent(`Hola, vi tu publicación de ${pub.title} en Chatarrin, ¿sigue disponible?`);
+                    window.open(`https://wa.me/54${pub.seller.whatsapp}?text=${msg}`, '_blank');
+                  }}
+                  className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-semibold py-3 rounded-full text-sm transition-colors"
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  Contactar por WhatsApp
+                </button>
+                <button
+                  onClick={() => {
+                    const url = window.location.href;
+                    const msg = encodeURIComponent(`Mirá esta publicación en Chatarrin: ${pub.title} — ${url}`);
+                    window.open(`https://wa.me/?text=${msg}`, '_blank');
+                  }}
+                  className="flex items-center justify-center gap-2 border border-border text-muted-foreground hover:text-foreground hover:border-foreground/30 font-medium py-2.5 rounded-full text-sm transition-colors"
+                >
+                  <Share2 className="h-4 w-4" />
+                  Compartir
+                </button>
+              </div>
+            ) : null
+          ) : (
+            <div className="flex flex-col gap-2 p-4 rounded-2xl border border-border bg-secondary">
+              <p className="text-sm text-muted-foreground text-center">
+                Iniciá sesión para ver el contacto del vendedor
+              </p>
+              <Link
+                href="/login"
+                className="flex items-center justify-center bg-brand hover:bg-brand-dark text-white font-semibold py-2.5 rounded-full text-sm transition-colors"
+              >
+                Iniciar sesión
+              </Link>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Transportistas */}
-      <LogisticsCarousel province={pub.province} weightKg={pub.weightKg} />
+      {/* Carrusel de transportistas */}
+      <div className="border-t border-border pt-8">
+        <LogisticsCarousel province={pub.province} weightKg={pub.weightKg} />
+      </div>
 
       {/* Calificaciones */}
-      <Separator />
-      <ReviewForm sellerId={pub.seller.id} />
+      <div className="border-t border-border pt-8">
+        <h3 className="font-bold text-base text-foreground mb-4">Calificar al vendedor</h3>
+        <ReviewForm sellerId={pub.seller.id} />
+      </div>
+
     </div>
   );
 }

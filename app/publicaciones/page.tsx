@@ -6,7 +6,6 @@ import { PublicationCard } from '@/components/publications/PublicationCard';
 import { PublicationFilters } from '@/components/publications/PublicationFilters';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { EmptyState } from '@/components/common/EmptyState';
-import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function PublicationsPage() {
@@ -14,11 +13,23 @@ export default function PublicationsPage() {
   const [page, setPage] = useState(1);
   const [sortBy, setSortBy] = useState('Más reciente');
 
-  const { data, isLoading, error } = usePublications({ ...filters, page, limit: 20 });
+  const sortByMap: Record<string, string> = {
+    'Más reciente': 'createdAt_desc',
+    'Más visitado': 'visitCount_desc',
+    'Menor precio': 'price_asc',
+    'Mayor peso': 'weight_desc',
+  };
+
+  const { data, isLoading, error } = usePublications({
+    ...filters,
+    page,
+    limit: 20,
+    sortBy: sortByMap[sortBy] ?? 'createdAt_desc',
+  });
 
   const handleFilterChange = (key: string, value: any) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
-    setPage(1); // volver a página 1 al cambiar filtros
+    setPage(1);
   };
 
   const handleReset = () => {
@@ -27,14 +38,21 @@ export default function PublicationsPage() {
   };
 
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold">Publicaciones</h1>
-        <p className="text-sm text-muted-foreground">
-          Explorá los metales reciclables disponibles
-        </p>
+    <div className="flex flex-col gap-6 py-2">
+
+      {/* Header */}
+      <div className="flex items-baseline justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-black text-foreground">Publicaciones</h1>
+          {data && (
+            <p className="text-sm text-muted-foreground mt-0.5">
+              {data.total ?? data.data.length} resultados
+            </p>
+          )}
+        </div>
       </div>
 
+      {/* Filtros */}
       <PublicationFilters
         filters={filters}
         onChange={handleFilterChange}
@@ -43,6 +61,7 @@ export default function PublicationsPage() {
         onSortChange={setSortBy}
       />
 
+      {/* Contenido */}
       {isLoading ? (
         <LoadingSpinner />
       ) : error ? (
@@ -58,28 +77,26 @@ export default function PublicationsPage() {
           </div>
 
           {data.totalPages > 1 && (
-            <div className="flex items-center justify-center gap-4 mt-6">
-              <Button
-                variant="outline"
-                size="sm"
+            <div className="flex items-center justify-center gap-3 mt-4">
+              <button
                 disabled={page === 1}
                 onClick={() => setPage((p) => p - 1)}
+                className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-full border border-border text-muted-foreground hover:text-foreground hover:border-foreground/30 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
-                <ChevronLeft className="h-4 w-4 mr-1" />
+                <ChevronLeft className="h-4 w-4" />
                 Anterior
-              </Button>
-              <span className="text-sm text-muted-foreground">
-                Página {data.page} de {data.totalPages}
+              </button>
+              <span className="text-sm text-muted-foreground px-2">
+                {data.page} / {data.totalPages}
               </span>
-              <Button
-                variant="outline"
-                size="sm"
+              <button
                 disabled={page === data.totalPages}
                 onClick={() => setPage((p) => p + 1)}
+                className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-full border border-border text-muted-foreground hover:text-foreground hover:border-foreground/30 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 Siguiente
-                <ChevronRight className="h-4 w-4 ml-1" />
-              </Button>
+                <ChevronRight className="h-4 w-4" />
+              </button>
             </div>
           )}
         </>

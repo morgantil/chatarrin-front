@@ -7,7 +7,7 @@ import type { Role } from '@/types';
 
 export function useAuth() {
   const { user, token, isLoading, clearAuth } = useAuthStore();
-  const isLoggedIn = !!token;
+  const isLoggedIn = !!token && !!user;
 
   return { user, token, isLoggedIn, isLoading, clearAuth };
 }

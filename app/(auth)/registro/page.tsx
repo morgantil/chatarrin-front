@@ -7,7 +7,6 @@ import { api } from '@/lib/api';
 import { useAuthStore } from '@/store/auth.store';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -42,64 +41,107 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="max-w-sm mx-auto mt-8 flex flex-col gap-6">
-      <div className="text-center">
-        <h1 className="text-2xl font-bold">Crear cuenta</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          ¿Ya tenés cuenta?{' '}
-          <Link href="/login" className="text-brand hover:underline font-medium">
-            Iniciá sesión
+    <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-sm flex flex-col gap-8">
+
+        {/* Header */}
+        <div className="text-center flex flex-col gap-1">
+          <Link href="/" className="flex items-center justify-center gap-0 mb-4">
+            <span className="text-2xl font-black tracking-tight text-foreground">chatar</span>
+            <span className="text-2xl font-black tracking-tight text-brand">rin</span>
           </Link>
-        </p>
+          <h1 className="text-xl font-black text-foreground">Crear cuenta gratis</h1>
+          <p className="text-sm text-muted-foreground">
+            ¿Ya tenés cuenta?{' '}
+            <Link href="/login" className="text-brand hover:text-brand-dark font-semibold transition-colors">
+              Iniciá sesión
+            </Link>
+          </p>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-sm font-semibold">Nombre completo</Label>
+            <Input
+              placeholder="Juan Pérez"
+              className="h-11 rounded-xl border-border bg-card"
+              {...register('name')}
+            />
+            {errors.name && <p className="text-xs text-red-500">{errors.name.message}</p>}
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-sm font-semibold">Email</Label>
+            <Input
+              type="email"
+              placeholder="juan@email.com"
+              className="h-11 rounded-xl border-border bg-card"
+              {...register('email')}
+            />
+            {errors.email && <p className="text-xs text-red-500">{errors.email.message}</p>}
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-sm font-semibold">WhatsApp</Label>
+            <Input
+              placeholder="1134567890"
+              className="h-11 rounded-xl border-border bg-card"
+              {...register('whatsapp')}
+            />
+            {errors.whatsapp && <p className="text-xs text-red-500">{errors.whatsapp.message}</p>}
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-sm font-semibold">Contraseña</Label>
+            <Input
+              type="password"
+              className="h-11 rounded-xl border-border bg-card"
+              {...register('password')}
+            />
+            {errors.password && <p className="text-xs text-red-500">{errors.password.message}</p>}
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-sm font-semibold">Provincia</Label>
+            <Controller
+              name="province"
+              control={control}
+              render={({ field }) => (
+                <Select onValueChange={field.onChange} value={field.value || ''}>
+                  <SelectTrigger className="h-11 rounded-xl border-border bg-card">
+                    <SelectValue placeholder="Seleccioná tu provincia" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PROVINCES.map((p) => (
+                      <SelectItem key={p} value={p}>{p}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.province && <p className="text-xs text-red-500">{errors.province.message}</p>}
+          </div>
+
+          {error && (
+            <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800">
+              <p className="text-sm text-red-600 dark:text-red-400 text-center">{error}</p>
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="h-11 w-full bg-brand hover:bg-brand-dark active:bg-brand-dark text-white font-semibold rounded-full text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed mt-2"
+          >
+            {isSubmitting ? 'Creando cuenta...' : 'Crear cuenta gratis'}
+          </button>
+
+          <p className="text-xs text-muted-foreground text-center">
+            Al registrarte aceptás nuestros términos de uso y privacidad.
+          </p>
+        </form>
       </div>
-
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 pb-24">
-        <div className="flex flex-col gap-1.5">
-          <Label>Nombre completo</Label>
-          <Input placeholder="Juan Pérez" {...register('name')} />
-          {errors.name && <p className="text-xs text-red-500">{errors.name.message}</p>}
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <Label>Email</Label>
-          <Input type="email" placeholder="juan@email.com" {...register('email')} />
-          {errors.email && <p className="text-xs text-red-500">{errors.email.message}</p>}
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <Label>WhatsApp</Label>
-          <Input placeholder="1134567890" {...register('whatsapp')} />
-          {errors.whatsapp && <p className="text-xs text-red-500">{errors.whatsapp.message}</p>}
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <Label>Contraseña</Label>
-          <Input type="password" {...register('password')} />
-          {errors.password && <p className="text-xs text-red-500">{errors.password.message}</p>}
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <Label>Provincia</Label>
-          <Controller name="province" control={control} render={({ field }) => (
-            <Select onValueChange={field.onChange} value={field.value || ''}>
-              <SelectTrigger><SelectValue placeholder="Seleccioná tu provincia" /></SelectTrigger>
-              <SelectContent>
-                {PROVINCES.map((p) => (
-                  <SelectItem key={p} value={p}>{p}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )} />
-          {errors.province && <p className="text-xs text-red-500">{errors.province.message}</p>}
-        </div>
-
-        {error && <p className="text-sm text-red-500 text-center">{error}</p>}
-
-        <Button type="submit" disabled={isSubmitting}
-          className="bg-brand hover:bg-brand-dark text-white w-full">
-          {isSubmitting ? 'Creando cuenta...' : 'Crear cuenta'}
-        </Button>
-      </form>
     </div>
   );
 }
