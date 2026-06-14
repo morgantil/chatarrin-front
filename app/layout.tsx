@@ -5,7 +5,7 @@ import { Providers } from '@/components/Providers';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700', '900'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
   title: 'Chatarrin — Marketplace de metales reciclables',
@@ -18,7 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen flex flex-col font-sans">
         <Providers>
           <Navbar />
-          <main className="flex-1 container mx-auto px-4 py-6">
+          <main className="flex-1 container mx-auto px-4">
             {children}
           </main>
           <Footer />

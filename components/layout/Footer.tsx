@@ -1,11 +1,36 @@
+import Link from 'next/link';
+
 export function Footer() {
   return (
-    <footer className="border-t mt-auto">
-      <div className="container mx-auto px-4 py-6 flex flex-col md:flex-row items-center justify-between gap-2">
-        <span className="text-sm font-bold text-brand">Chatarrin</span>
-        <p className="text-xs text-muted-foreground">
-          © {new Date().getFullYear()} Chatarrin. Marketplace de metales reciclables.
-        </p>
+    <footer className="border-t border-border mt-auto">
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex flex-col items-center sm:items-start gap-1">
+            <Link href="/" className="flex items-center gap-0">
+              <span className="text-sm font-black tracking-tight text-foreground">chatar</span>
+              <span className="text-sm font-black tracking-tight text-brand">rin</span>
+            </Link>
+            <p className="text-xs text-muted-foreground">Marketplace de metales reciclables · Argentina</p>
+          </div>
+
+          <div className="flex items-center gap-6">
+            <Link href="/publicaciones" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+              Publicaciones
+            </Link>
+            <Link href="/registro" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+              Publicar gratis
+            </Link>
+            <Link href="/login" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+              Iniciar sesión
+            </Link>
+          </div>
+        </div>
+
+        <div className="mt-6 pt-4 border-t border-border text-center">
+          <p className="text-xs text-muted-foreground">
+            © {new Date().getFullYear()} Chatarrin. Todos los derechos reservados.
+          </p>
+        </div>
       </div>
     </footer>
   );

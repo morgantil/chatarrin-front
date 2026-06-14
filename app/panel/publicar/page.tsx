@@ -1,16 +1,14 @@
 'use client';
 
 import { ProtectedRoute } from '@/components/common/ProtectedRoute';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { api } from '@/lib/api';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ImageUploader } from '@/components/common/ImageUploader';
 import { useState } from 'react';
 import { useCategories } from '@/hooks/usePublications';
@@ -20,7 +18,7 @@ const createSchema = z.object({
   title: z.string().min(3, 'El título debe tener al menos 3 caracteres'),
   description: z.string().min(10, 'Describí el material (mín. 10 caracteres)'),
   weightKg: z.number().positive('El peso debe ser mayor a 0'),
-  priceArs: z.number().optional(),
+  priceArs: z.number().min(0).optional(),
   isNegotiable: z.boolean(),
   province: z.string().min(1, 'Seleccioná tu provincia'),
   locality: z.string().optional(),
@@ -37,19 +35,18 @@ const PROVINCES = [
   'Santa Fe', 'Santiago del Estero', 'Tierra del Fuego', 'Tucumán',
 ];
 
+const selectClass = "flex h-10 w-full rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-brand appearance-none cursor-pointer";
+
 export default function CreatePublicationPage() {
   const router = useRouter();
   const { data: categories } = useCategories();
   const [error, setError] = useState('');
   const [photoUrls, setPhotoUrls] = useState<string[]>([]);
 
-  const { register, handleSubmit, control, formState: { errors, isSubmitting } } =
+  const { register, handleSubmit, formState: { errors, isSubmitting } } =
     useForm<CreateForm>({
       resolver: zodResolver(createSchema) as any,
-      defaultValues: {
-        isNegotiable: false,
-        visibility: 'NORMAL',
-      },
+      defaultValues: { isNegotiable: false, visibility: 'NORMAL' },
     });
 
   const onSubmit = async (data: CreateForm) => {
@@ -69,106 +66,135 @@ export default function CreatePublicationPage() {
 
   return (
     <ProtectedRoute>
-      <div className="max-w-lg mx-auto flex flex-col gap-6">
-        <h1 className="text-2xl font-bold">Nueva publicación</h1>
+      <div className="max-w-lg mx-auto flex flex-col gap-6 py-6">
+        <div>
+          <h1 className="text-2xl font-black text-foreground">Nueva publicación</h1>
+          <p className="text-sm text-muted-foreground mt-1">Completá los datos de tu material</p>
+        </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+
+          {/* Categoría */}
           <div className="flex flex-col gap-1.5">
-            <Label>Categoría</Label>
-            <Controller name="categoryId" control={control} render={({ field }) => (
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <SelectTrigger><SelectValue placeholder="Seleccioná el material" /></SelectTrigger>
-                <SelectContent>
-                  {categories?.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )} />
+            <Label className="text-sm font-semibold">Categoría</Label>
+            <select className={selectClass} {...register('categoryId')}>
+              <option value="">Seleccioná el material</option>
+              {categories?.map((c) => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
             {errors.categoryId && <p className="text-xs text-red-500">{errors.categoryId.message}</p>}
           </div>
 
+          {/* Título */}
           <div className="flex flex-col gap-1.5">
-            <Label>Título</Label>
-            <Input placeholder="Ej: Aluminio post-consumo, Bronce industrial..." {...register('title')} />
+            <Label className="text-sm font-semibold">Título</Label>
+            <Input
+              placeholder="Ej: Aluminio post-consumo, Bronce industrial..."
+              className="h-10 rounded-xl"
+              {...register('title')}
+            />
             {errors.title && <p className="text-xs text-red-500">{errors.title.message}</p>}
           </div>
 
+          {/* Descripción */}
           <div className="flex flex-col gap-1.5">
-            <Label>Descripción</Label>
-            <Textarea rows={3} placeholder="Describí el material, estado, cantidad..." {...register('description')} />
+            <Label className="text-sm font-semibold">Descripción</Label>
+            <Textarea
+              rows={3}
+              placeholder="Describí el material, estado, cantidad..."
+              className="rounded-xl resize-none"
+              {...register('description')}
+            />
             {errors.description && <p className="text-xs text-red-500">{errors.description.message}</p>}
           </div>
 
+          {/* Peso + Precio */}
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1.5">
-              <Label>Peso (kg)</Label>
-              <Input type="number" step="0.1" min="0" placeholder="100"
-                {...register('weightKg', { valueAsNumber: true })} />
+              <Label className="text-sm font-semibold">Peso (kg)</Label>
+              <Input
+                type="number" step="0.1" min="0" placeholder="100"
+                className="h-10 rounded-xl"
+                {...register('weightKg', { valueAsNumber: true })}
+              />
               {errors.weightKg && <p className="text-xs text-red-500">{errors.weightKg.message}</p>}
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label>Precio (ARS, opcional)</Label>
-              <Input type="number" placeholder="50000"
-                {...register('priceArs', { valueAsNumber: true })} />
+              <Label className="text-sm font-semibold">Precio ARS</Label>
+              <Input
+                type="number" min="0" step="1" placeholder="Opcional"
+                className="h-10 rounded-xl"
+                {...register('priceArs', { valueAsNumber: true })}
+              />
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <input type="checkbox" id="isNegotiable" {...register('isNegotiable')} className="rounded border-border" />
-            <Label htmlFor="isNegotiable" className="text-sm">Precio negociable</Label>
-          </div>
+          {/* Precio negociable */}
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              className="w-4 h-4 rounded border-border accent-brand"
+              {...register('isNegotiable')}
+            />
+            <span className="text-sm font-medium text-foreground">Precio negociable</span>
+          </label>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="flex flex-col gap-1.5">
-              <Label>Provincia</Label>
-              <Controller name="province" control={control} render={({ field }) => (
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <SelectTrigger><SelectValue placeholder="Provincia" /></SelectTrigger>
-                  <SelectContent>
-                    {PROVINCES.map((p) => (
-                      <SelectItem key={p} value={p}>{p}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )} />
-              {errors.province && <p className="text-xs text-red-500">{errors.province.message}</p>}
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label>Localidad (opcional)</Label>
-              <Input placeholder="Localidad" {...register('locality')} />
-            </div>
-          </div>
-
+          {/* Provincia */}
           <div className="flex flex-col gap-1.5">
-            <Label>Visibilidad</Label>
-            <Controller name="visibility" control={control} render={({ field }) => (
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <SelectTrigger><SelectValue placeholder="Nivel de visibilidad" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="FREE">Gratis (básica)</SelectItem>
-                  <SelectItem value="NORMAL">Normal</SelectItem>
-                  <SelectItem value="FEATURED">Destacado</SelectItem>
-                  <SelectItem value="URGENT">Urgente</SelectItem>
-                </SelectContent>
-              </Select>
-            )} />
+            <Label className="text-sm font-semibold">Provincia</Label>
+            <select className={selectClass} {...register('province')}>
+              <option value="">Seleccioná tu provincia</option>
+              {PROVINCES.map((p) => (
+                <option key={p} value={p}>{p}</option>
+              ))}
+            </select>
+            {errors.province && <p className="text-xs text-red-500">{errors.province.message}</p>}
           </div>
 
+          {/* Localidad */}
           <div className="flex flex-col gap-1.5">
-            <Label>Fotos (opcional, máx 5)</Label>
+            <Label className="text-sm font-semibold">Localidad <span className="text-muted-foreground font-normal">(opcional)</span></Label>
+            <Input
+              placeholder="Ciudad o barrio"
+              className="h-10 rounded-xl"
+              {...register('locality')}
+            />
+          </div>
+
+          {/* Visibilidad */}
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-sm font-semibold">Visibilidad</Label>
+            <select className={selectClass} {...register('visibility')}>
+              <option value="FREE">Gratis (básica)</option>
+              <option value="NORMAL">Normal</option>
+              <option value="FEATURED">Destacado</option>
+              <option value="URGENT">Urgente</option>
+            </select>
+          </div>
+
+          {/* Fotos */}
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-sm font-semibold">
+              Fotos <span className="text-muted-foreground font-normal">(opcional, máx 5)</span>
+            </Label>
             <ImageUploader onChange={setPhotoUrls} maxFiles={5} />
-            <p className="text-xs text-muted-foreground">
-              La primera foto aparece en el listado.
-            </p>
+            <p className="text-xs text-muted-foreground">La primera foto aparece en el listado.</p>
           </div>
 
-          {error && <p className="text-sm text-red-500">{error}</p>}
+          {error && (
+            <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800">
+              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+            </div>
+          )}
 
-          <Button type="submit" disabled={isSubmitting}
-            className="bg-brand hover:bg-brand-dark text-white w-full">
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="h-11 w-full bg-brand hover:bg-brand-dark text-white font-semibold rounded-full text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          >
             {isSubmitting ? 'Publicando...' : 'Publicar'}
-          </Button>
+          </button>
         </form>
       </div>
     </ProtectedRoute>

@@ -1,9 +1,6 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { X } from 'lucide-react';
+import { SlidersHorizontal, X } from 'lucide-react';
 import { useCategories } from '@/hooks/usePublications';
 
 const PROVINCES = [
@@ -13,6 +10,8 @@ const PROVINCES = [
   'Río Negro', 'Salta', 'San Juan', 'San Luis', 'Santa Cruz',
   'Santa Fe', 'Santiago del Estero', 'Tierra del Fuego', 'Tucumán',
 ];
+
+const SORT_OPTIONS = ['Más reciente', 'Menor precio', 'Mayor peso'];
 
 interface Props {
   filters: Record<string, any>;
@@ -28,70 +27,80 @@ export function PublicationFilters({ filters, onChange, onReset, sortBy, onSortC
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Fila de filtros tipo chips */}
-      <div className="flex flex-wrap gap-2 items-center">
 
-        {/* Material */}
-        <Select value={filters.categorySlug || ''} onValueChange={(v) => onChange('categorySlug', v || undefined)}>
-          <SelectTrigger className="w-auto min-w-[140px] h-8 text-sm">
-            <SelectValue placeholder="Material" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="">Todos los materiales</SelectItem>
-            {categories?.map((c) => (
-              <SelectItem key={c.id} value={c.slug}>{c.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      {/* Fila principal — scroll horizontal en mobile */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
+
+        {/* Categoría */}
+        <select
+          value={filters.categorySlug || ''}
+          onChange={(e) => onChange('categorySlug', e.target.value || undefined)}
+          className="shrink-0 h-8 px-3 text-xs font-medium rounded-full border border-border bg-card text-foreground cursor-pointer hover:border-brand/50 focus:outline-none focus:ring-1 focus:ring-brand transition-colors appearance-none pr-6"
+          style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236B7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center' }}
+        >
+          <option value="">Material</option>
+          {categories?.map((c) => (
+            <option key={c.id} value={c.slug}>{c.name}</option>
+          ))}
+        </select>
 
         {/* Provincia */}
-        <Select value={filters.province || ''} onValueChange={(v) => onChange('province', v || undefined)}>
-          <SelectTrigger className="w-auto min-w-[140px] h-8 text-sm">
-            <SelectValue placeholder="Provincia" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="">Todas las provincias</SelectItem>
-            {PROVINCES.map((p) => (
-              <SelectItem key={p} value={p}>{p}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <select
+          value={filters.province || ''}
+          onChange={(e) => onChange('province', e.target.value || undefined)}
+          className="shrink-0 h-8 px-3 text-xs font-medium rounded-full border border-border bg-card text-foreground cursor-pointer hover:border-brand/50 focus:outline-none focus:ring-1 focus:ring-brand transition-colors appearance-none pr-6"
+          style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236B7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center' }}
+        >
+          <option value="">Provincia</option>
+          {PROVINCES.map((p) => (
+            <option key={p} value={p}>{p}</option>
+          ))}
+        </select>
 
         {/* Kg mínimo */}
-        <Input
-          type="number" placeholder="Kg mínimo"
-          className="w-32 h-8 text-sm"
+        <input
+          type="number"
+          placeholder="Kg mín."
+          className="shrink-0 w-24 h-8 px-3 text-xs font-medium rounded-full border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-brand transition-colors"
           value={filters.minKg || ''}
           onChange={(e) => onChange('minKg', e.target.value ? Number(e.target.value) : undefined)}
         />
 
-        {/* Precio máximo */}
-        <Input
-          type="number" placeholder="Precio máx (ARS)"
-          className="w-40 h-8 text-sm"
+        {/* Precio máx */}
+        <input
+          type="number"
+          placeholder="Precio máx."
+          className="shrink-0 w-28 h-8 px-3 text-xs font-medium rounded-full border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-brand transition-colors"
           value={filters.maxPrice || ''}
           onChange={(e) => onChange('maxPrice', e.target.value ? Number(e.target.value) : undefined)}
         />
 
-        {/* Reset */}
+        {/* Limpiar */}
         {hasFilters && (
-          <Button variant="ghost" size="sm" onClick={onReset} className="h-8 gap-1 text-muted-foreground">
-            <X className="h-3 w-3" /> Limpiar
-          </Button>
+          <button
+            onClick={onReset}
+            className="shrink-0 flex items-center gap-1 h-8 px-3 text-xs font-medium rounded-full border border-border text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-colors"
+          >
+            <X className="h-3 w-3" />
+            Limpiar
+          </button>
         )}
       </div>
 
-      {/* Ordenamiento secundario */}
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <span>Ordenar por:</span>
-        {['Más reciente', 'Menor precio', 'Mayor peso'].map((opt) => (
-          <button key={opt}
+      {/* Ordenamiento */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-0.5 scrollbar-hide">
+        <SlidersHorizontal className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+        <span className="text-xs text-muted-foreground shrink-0">Ordenar:</span>
+        {SORT_OPTIONS.map((opt) => (
+          <button
+            key={opt}
             onClick={() => onSortChange(opt)}
-            className={`px-2 py-0.5 rounded-full text-xs border transition-colors ${
+            className={`shrink-0 px-3 py-1 text-xs font-medium rounded-full border transition-colors ${
               sortBy === opt
                 ? 'bg-brand text-white border-brand'
-                : 'border-border hover:border-brand hover:text-brand'
-            }`}>
+                : 'bg-transparent text-muted-foreground border-border hover:border-brand/50 hover:text-foreground'
+            }`}
+          >
             {opt}
           </button>
         ))}

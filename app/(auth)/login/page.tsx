@@ -7,7 +7,6 @@ import { api } from '@/lib/api';
 import { useAuthStore } from '@/store/auth.store';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useState } from 'react';
@@ -34,37 +33,67 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="max-w-sm mx-auto mt-12 flex flex-col gap-6">
-      <div className="text-center">
-        <h1 className="text-2xl font-bold">Iniciar sesión</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          ¿No tenés cuenta?{' '}
-          <Link href="/registro" className="text-brand hover:underline font-medium">
-            Registrate
+    <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-sm flex flex-col gap-8">
+
+        {/* Header */}
+        <div className="text-center flex flex-col gap-1">
+          <Link href="/" className="flex items-center justify-center gap-0 mb-4">
+            <span className="text-2xl font-black tracking-tight text-foreground">chatar</span>
+            <span className="text-2xl font-black tracking-tight text-brand">rin</span>
           </Link>
-        </p>
+          <h1 className="text-xl font-black text-foreground">Bienvenido de vuelta</h1>
+          <p className="text-sm text-muted-foreground">
+            ¿No tenés cuenta?{' '}
+            <Link href="/registro" className="text-brand hover:text-brand-dark font-semibold transition-colors">
+              Registrate gratis
+            </Link>
+          </p>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="whatsapp" className="text-sm font-semibold">WhatsApp</Label>
+            <Input
+              id="whatsapp"
+              placeholder="1134567890"
+              className="h-11 rounded-xl border-border bg-card focus:ring-brand focus:border-brand"
+              {...register('whatsapp')}
+            />
+            {errors.whatsapp && (
+              <p className="text-xs text-red-500">{errors.whatsapp.message}</p>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="password" className="text-sm font-semibold">Contraseña</Label>
+            <Input
+              id="password"
+              type="password"
+              className="h-11 rounded-xl border-border bg-card focus:ring-brand focus:border-brand"
+              {...register('password')}
+            />
+            {errors.password && (
+              <p className="text-xs text-red-500">{errors.password.message}</p>
+            )}
+          </div>
+
+          {error && (
+            <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800">
+              <p className="text-sm text-red-600 dark:text-red-400 text-center">{error}</p>
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="h-11 w-full bg-brand hover:bg-brand-dark active:bg-brand-dark text-white font-semibold rounded-full text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed mt-2"
+          >
+            {isSubmitting ? 'Ingresando...' : 'Ingresar'}
+          </button>
+        </form>
       </div>
-
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="whatsapp">WhatsApp</Label>
-          <Input id="whatsapp" placeholder="1134567890" {...register('whatsapp')} />
-          {errors.whatsapp && <p className="text-xs text-red-500">{errors.whatsapp.message}</p>}
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="password">Contraseña</Label>
-          <Input id="password" type="password" {...register('password')} />
-          {errors.password && <p className="text-xs text-red-500">{errors.password.message}</p>}
-        </div>
-
-        {error && <p className="text-sm text-red-500 text-center">{error}</p>}
-
-        <Button type="submit" disabled={isSubmitting}
-          className="bg-brand hover:bg-brand-dark text-white w-full">
-          {isSubmitting ? 'Ingresando...' : 'Ingresar'}
-        </Button>
-      </form>
     </div>
   );
 }
