@@ -79,7 +79,7 @@ export function Navbar() {
               <DropdownMenuContent align="end" className="w-52">
                 <div className="px-3 py-2">
                   <p className="text-sm font-semibold truncate">{user.name}</p>
-                  <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                  <p className="text-xs text-muted-foreground truncate">{user.province}</p>
                 </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => router.push('/panel')}>

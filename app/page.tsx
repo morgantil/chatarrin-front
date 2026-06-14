@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ArrowRight, Recycle, Truck, ShieldCheck, Package } from 'lucide-react';
+import { FeaturedPublications } from '@/components/publications/FeaturedPublications';
 
 export default function HomePage() {
   return (
@@ -55,6 +56,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Publicaciones destacadas */}
+      <FeaturedPublications />
 
       {/* Cómo funciona */}
       <section className="py-12 md:py-16 border-t border-border">

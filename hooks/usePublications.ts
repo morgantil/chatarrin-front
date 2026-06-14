@@ -9,6 +9,9 @@ interface Filters {
   maxKg?: number;
   minPrice?: number;
   maxPrice?: number;
+  hasPhoto?: boolean;
+  sortBy?: string;
+  visibility?: string;
   page?: number;
   limit?: number;
 }
@@ -21,6 +24,9 @@ function buildQuery(filters: Filters): string {
   if (filters.maxKg) params.set('maxKg', String(filters.maxKg));
   if (filters.minPrice) params.set('minPrice', String(filters.minPrice));
   if (filters.maxPrice) params.set('maxPrice', String(filters.maxPrice));
+  if (filters.hasPhoto) params.set('hasPhoto', 'true');
+  if (filters.sortBy) params.set('sortBy', filters.sortBy);
+  if (filters.visibility) params.set('visibility', filters.visibility);
   if (filters.page) params.set('page', String(filters.page));
   if (filters.limit) params.set('limit', String(filters.limit));
   return params.toString();

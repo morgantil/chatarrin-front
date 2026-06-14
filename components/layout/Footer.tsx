@@ -26,10 +26,18 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-6 pt-4 border-t border-border text-center">
+        <div className="mt-6 pt-4 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="text-xs text-muted-foreground">
             © {new Date().getFullYear()} Chatarrin. Todos los derechos reservados.
           </p>
+          <div className="flex items-center gap-4">
+            <Link href="/terminos" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+              Términos
+            </Link>
+            <Link href="/privacidad" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+              Privacidad
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

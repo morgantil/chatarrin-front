@@ -11,7 +11,7 @@ const PROVINCES = [
   'Santa Fe', 'Santiago del Estero', 'Tierra del Fuego', 'Tucumán',
 ];
 
-const SORT_OPTIONS = ['Más reciente', 'Menor precio', 'Mayor peso'];
+const SORT_OPTIONS = ['Más reciente', 'Más visitado', 'Menor precio', 'Mayor peso'];
 
 interface Props {
   filters: Record<string, any>;
@@ -74,6 +74,17 @@ export function PublicationFilters({ filters, onChange, onReset, sortBy, onSortC
           value={filters.maxPrice || ''}
           onChange={(e) => onChange('maxPrice', e.target.value ? Number(e.target.value) : undefined)}
         />
+
+        {/* Solo con foto */}
+        <label className="shrink-0 flex items-center gap-1.5 h-8 px-3 text-xs font-medium rounded-full border border-border bg-card text-foreground cursor-pointer hover:border-brand/50 transition-colors select-none">
+          <input
+            type="checkbox"
+            checked={!!filters.hasPhoto}
+            onChange={(e) => onChange('hasPhoto', e.target.checked ? true : undefined)}
+            className="w-3 h-3 accent-brand"
+          />
+          Con foto
+        </label>
 
         {/* Limpiar */}
         {hasFilters && (

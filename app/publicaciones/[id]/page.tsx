@@ -9,7 +9,7 @@ import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { LogisticsCarousel } from '@/components/logistics/LogisticsCarousel';
 import { ReviewForm } from '@/components/reviews/ReviewForm';
 import { VisibilityBadge } from '@/components/publications/VisibilityBadge';
-import { MapPin, Weight, Eye, Calendar, MessageCircle, ShieldCheck, ArrowLeft, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { MapPin, Weight, Eye, Calendar, MessageCircle, ShieldCheck, ArrowLeft, CheckCircle, XCircle, Clock, Share2 } from 'lucide-react';
 import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -219,13 +219,29 @@ export default function PublicationDetailPage() {
           {/* Contacto */}
           {isLoggedIn ? (
             pub.seller.whatsapp ? (
-              <button
-                onClick={() => window.open(`https://wa.me/54${pub.seller.whatsapp}`, '_blank')}
-                className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-semibold py-3 rounded-full text-sm transition-colors"
-              >
-                <MessageCircle className="h-4 w-4" />
-                Contactar por WhatsApp
-              </button>
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={() => {
+                    const msg = encodeURIComponent(`Hola, vi tu publicación de ${pub.title} en Chatarrin, ¿sigue disponible?`);
+                    window.open(`https://wa.me/54${pub.seller.whatsapp}?text=${msg}`, '_blank');
+                  }}
+                  className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-semibold py-3 rounded-full text-sm transition-colors"
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  Contactar por WhatsApp
+                </button>
+                <button
+                  onClick={() => {
+                    const url = window.location.href;
+                    const msg = encodeURIComponent(`Mirá esta publicación en Chatarrin: ${pub.title} — ${url}`);
+                    window.open(`https://wa.me/?text=${msg}`, '_blank');
+                  }}
+                  className="flex items-center justify-center gap-2 border border-border text-muted-foreground hover:text-foreground hover:border-foreground/30 font-medium py-2.5 rounded-full text-sm transition-colors"
+                >
+                  <Share2 className="h-4 w-4" />
+                  Compartir
+                </button>
+              </div>
             ) : null
           ) : (
             <div className="flex flex-col gap-2 p-4 rounded-2xl border border-border bg-secondary">

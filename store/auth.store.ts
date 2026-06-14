@@ -44,7 +44,22 @@ export const useAuthStore = create<AuthStore>((set) => ({
         set({ isLoading: false });
         return;
       }
-      set({ token, isLoading: false });
+      if (!payload.name) {
+        // Token viejo sin name/province — forzar re-login
+        localStorage.removeItem('chatarrin_token');
+        set({ isLoading: false });
+        return;
+      }
+      set({
+        token,
+        user: {
+          id: payload.userId,
+          name: payload.name,
+          role: payload.role ?? 'USER',
+          province: payload.province ?? '',
+        },
+        isLoading: false,
+      });
     } catch {
       localStorage.removeItem('chatarrin_token');
       set({ isLoading: false });

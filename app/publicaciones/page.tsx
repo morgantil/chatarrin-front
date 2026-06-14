@@ -13,7 +13,19 @@ export default function PublicationsPage() {
   const [page, setPage] = useState(1);
   const [sortBy, setSortBy] = useState('Más reciente');
 
-  const { data, isLoading, error } = usePublications({ ...filters, page, limit: 20 });
+  const sortByMap: Record<string, string> = {
+    'Más reciente': 'createdAt_desc',
+    'Más visitado': 'visitCount_desc',
+    'Menor precio': 'price_asc',
+    'Mayor peso': 'weight_desc',
+  };
+
+  const { data, isLoading, error } = usePublications({
+    ...filters,
+    page,
+    limit: 20,
+    sortBy: sortByMap[sortBy] ?? 'createdAt_desc',
+  });
 
   const handleFilterChange = (key: string, value: any) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
