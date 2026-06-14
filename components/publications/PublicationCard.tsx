@@ -62,7 +62,7 @@ export function PublicationCard({ pub }: { pub: Publication }) {
             </span>
             <span className="flex items-center gap-1 truncate">
               <MapPin className="h-3 w-3 shrink-0" />
-              <span className="truncate">{pub.seller?.province}</span>
+              <span className="truncate">{pub.locality?.name ?? pub.province}</span>
             </span>
           </div>
 

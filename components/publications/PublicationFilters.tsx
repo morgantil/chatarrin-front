@@ -2,6 +2,7 @@
 
 import { SlidersHorizontal, X } from 'lucide-react';
 import { useCategories } from '@/hooks/usePublications';
+import { LocalitySelector } from '@/components/common/LocalitySelector';
 
 const PROVINCES = [
   'Buenos Aires', 'CABA', 'Catamarca', 'Chaco', 'Chubut',
@@ -56,6 +57,19 @@ export function PublicationFilters({ filters, onChange, onReset, sortBy, onSortC
             <option key={p} value={p}>{p}</option>
           ))}
         </select>
+
+        {/* Localidad — solo si hay provincia */}
+        {filters.province && (
+          <div className="shrink-0 w-52">
+            <LocalitySelector
+              province={filters.province}
+              value={filters.localityId}
+              onChange={(id) => onChange('localityId', id || undefined)}
+              placeholder="Localidad..."
+              className="h-8 text-xs"
+            />
+          </div>
+        )}
 
         {/* Kg mínimo */}
         <input

@@ -12,6 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { ImageUploader } from '@/components/common/ImageUploader';
 import { useState } from 'react';
 import { useCategories } from '@/hooks/usePublications';
+import { LocalitySelector } from '@/components/common/LocalitySelector';
 
 const createSchema = z.object({
   categoryId: z.string().min(1, 'Seleccioná una categoría'),
@@ -21,7 +22,6 @@ const createSchema = z.object({
   priceArs: z.number().min(0).optional(),
   isNegotiable: z.boolean(),
   province: z.string().min(1, 'Seleccioná tu provincia'),
-  locality: z.string().optional(),
   visibility: z.enum(['FREE', 'NORMAL', 'FEATURED', 'URGENT']),
 });
 
@@ -42,6 +42,8 @@ export default function CreatePublicationPage() {
   const { data: categories } = useCategories();
   const [error, setError] = useState('');
   const [photoUrls, setPhotoUrls] = useState<string[]>([]);
+  const [selectedProvince, setSelectedProvince] = useState('');
+  const [localityId, setLocalityId] = useState('');
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } =
     useForm<CreateForm>({
@@ -57,6 +59,7 @@ export default function CreatePublicationPage() {
         weightKg: Number(data.weightKg),
         priceArs: data.priceArs ? Number(data.priceArs) : undefined,
         photos: photoUrls,
+        localityId: localityId || undefined,
       });
       router.push('/panel/publicaciones');
     } catch (err: any) {
@@ -143,7 +146,15 @@ export default function CreatePublicationPage() {
           {/* Provincia */}
           <div className="flex flex-col gap-1.5">
             <Label className="text-sm font-semibold">Provincia</Label>
-            <select className={selectClass} {...register('province')}>
+            <select
+              className={selectClass}
+              {...register('province')}
+              onChange={(e) => {
+                register('province').onChange(e);
+                setSelectedProvince(e.target.value);
+                setLocalityId('');
+              }}
+            >
               <option value="">Seleccioná tu provincia</option>
               {PROVINCES.map((p) => (
                 <option key={p} value={p}>{p}</option>
@@ -154,11 +165,14 @@ export default function CreatePublicationPage() {
 
           {/* Localidad */}
           <div className="flex flex-col gap-1.5">
-            <Label className="text-sm font-semibold">Localidad <span className="text-muted-foreground font-normal">(opcional)</span></Label>
-            <Input
-              placeholder="Ciudad o barrio"
-              className="h-10 rounded-xl"
-              {...register('locality')}
+            <Label className="text-sm font-semibold">
+              Localidad <span className="text-muted-foreground font-normal">(opcional)</span>
+            </Label>
+            <LocalitySelector
+              province={selectedProvince}
+              value={localityId}
+              onChange={(id) => setLocalityId(id)}
+              placeholder="Buscar localidad..."
             />
           </div>
 

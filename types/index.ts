@@ -23,6 +23,13 @@ export interface AuthResponse {
   };
 }
 
+export interface Locality {
+  id: string;
+  name: string;
+  province: string;
+  slug?: string;
+}
+
 export interface Publication {
   id: string;
   title: string;
@@ -32,7 +39,8 @@ export interface Publication {
   isNegotiable: boolean;
   photos: string[];
   province: string;
-  locality?: string;
+  localityId?: string;
+  locality?: Locality;
   status: 'ACTIVE' | 'SOLD' | 'PAUSED';
   visibility: 'FREE' | 'NORMAL' | 'FEATURED' | 'URGENT';
   visitCount: number;
@@ -43,7 +51,7 @@ export interface Publication {
     id: string;
     name: string;
     province: string;
-    locality?: string;
+    locality?: { id: string; name: string };
     isVerified: boolean;
     avatarUrl?: string;
     whatsapp?: string;

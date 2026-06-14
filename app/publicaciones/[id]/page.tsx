@@ -177,7 +177,7 @@ export default function PublicationDetailPage() {
           <div className="grid grid-cols-2 gap-2">
             {[
               { icon: Weight,   label: 'Peso',       value: `${pub.weightKg} kg` },
-              { icon: MapPin,   label: 'Ubicación',  value: `${pub.province}${pub.locality ? `, ${pub.locality}` : ''}` },
+              { icon: MapPin,   label: 'Ubicación',  value: pub.locality ? `${pub.locality.name}, ${pub.province}` : pub.province },
               { icon: Eye,      label: 'Visitas',    value: `${pub.visitCount}` },
               { icon: Calendar, label: 'Publicado',  value: formatDate(pub.createdAt) },
             ].map(({ icon: Icon, label, value }) => (

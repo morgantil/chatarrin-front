@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useState } from 'react';
 import type { AuthResponse } from '@/types';
+import { LocalitySelector } from '@/components/common/LocalitySelector';
 
 const PROVINCES = [
   'Buenos Aires', 'CABA', 'Catamarca', 'Chaco', 'Chubut',
@@ -25,6 +26,8 @@ export default function RegisterPage() {
   const { setAuth } = useAuthStore();
   const router = useRouter();
   const [error, setError] = useState('');
+  const [selectedProvince, setSelectedProvince] = useState('');
+  const [localityId, setLocalityId] = useState('');
 
   const { register, handleSubmit, control, formState: { errors, isSubmitting } } =
     useForm<RegisterForm>({ resolver: zodResolver(registerSchema) });
@@ -32,7 +35,10 @@ export default function RegisterPage() {
   const onSubmit = async (data: RegisterForm) => {
     try {
       setError('');
-      const res = await api.post<AuthResponse>('/api/auth/register', data);
+      const res = await api.post<AuthResponse>('/api/auth/register', {
+        ...data,
+        localityId: localityId || undefined,
+      });
       setAuth(res.user, res.token);
       router.push('/publicaciones');
     } catch (err: any) {
@@ -108,7 +114,10 @@ export default function RegisterPage() {
               name="province"
               control={control}
               render={({ field }) => (
-                <Select onValueChange={field.onChange} value={field.value || ''}>
+                <Select
+                  onValueChange={(v) => { field.onChange(v); setSelectedProvince(v); setLocalityId(''); }}
+                  value={field.value || ''}
+                >
                   <SelectTrigger className="h-11 rounded-xl border-border bg-card">
                     <SelectValue placeholder="Seleccioná tu provincia" />
                   </SelectTrigger>
@@ -121,6 +130,18 @@ export default function RegisterPage() {
               )}
             />
             {errors.province && <p className="text-xs text-red-500">{errors.province.message}</p>}
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-sm font-semibold">
+              Localidad <span className="text-muted-foreground font-normal">(opcional)</span>
+            </Label>
+            <LocalitySelector
+              province={selectedProvince}
+              value={localityId}
+              onChange={(id) => setLocalityId(id)}
+              placeholder="Buscar localidad..."
+            />
           </div>
 
           {error && (
