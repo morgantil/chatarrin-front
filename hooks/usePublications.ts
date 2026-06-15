@@ -5,6 +5,7 @@ import type { Publication, Category, PaginatedResponse } from '@/types';
 interface Filters {
   categorySlug?: string;
   province?: string;
+  zone?: string;
   localityId?: string;
   minKg?: number;
   maxKg?: number;
@@ -21,6 +22,7 @@ function buildQuery(filters: Filters): string {
   const params = new URLSearchParams();
   if (filters.categorySlug) params.set('categorySlug', filters.categorySlug);
   if (filters.province) params.set('province', filters.province);
+  if (filters.zone) params.set('zone', filters.zone);
   if (filters.localityId) params.set('localityId', filters.localityId);
   if (filters.minKg) params.set('minKg', String(filters.minKg));
   if (filters.maxKg) params.set('maxKg', String(filters.maxKg));

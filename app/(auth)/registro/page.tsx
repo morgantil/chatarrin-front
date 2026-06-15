@@ -132,17 +132,19 @@ export default function RegisterPage() {
             {errors.province && <p className="text-xs text-red-500">{errors.province.message}</p>}
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <Label className="text-sm font-semibold">
-              Localidad <span className="text-muted-foreground font-normal">(opcional)</span>
-            </Label>
-            <LocalitySelector
-              province={selectedProvince}
-              value={localityId}
-              onChange={(id) => setLocalityId(id)}
-              placeholder="Buscar localidad..."
-            />
-          </div>
+          {selectedProvince && (
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-sm font-semibold">
+                Localidad <span className="text-muted-foreground font-normal">(opcional)</span>
+              </Label>
+              <LocalitySelector
+                province={selectedProvince}
+                value={localityId}
+                onChange={(id) => setLocalityId(id)}
+                placeholder="Buscar localidad..."
+              />
+            </div>
+          )}
 
           {error && (
             <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800">
