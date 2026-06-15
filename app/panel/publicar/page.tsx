@@ -13,6 +13,7 @@ import { ImageUploader } from '@/components/common/ImageUploader';
 import { useState } from 'react';
 import { useCategories } from '@/hooks/usePublications';
 import { LocalitySelector } from '@/components/common/LocalitySelector';
+import { useQueryClient } from '@tanstack/react-query';
 
 const createSchema = z.object({
   categoryId: z.string().min(1, 'Seleccioná una categoría'),
@@ -39,6 +40,7 @@ const selectClass = "flex h-10 w-full rounded-xl border border-border bg-card px
 
 export default function CreatePublicationPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { data: categories } = useCategories();
   const [error, setError] = useState('');
   const [photoUrls, setPhotoUrls] = useState<string[]>([]);
@@ -61,6 +63,7 @@ export default function CreatePublicationPage() {
         photos: photoUrls,
         localityId: localityId || undefined,
       });
+      await queryClient.invalidateQueries({ queryKey: ['publications'] });
       router.push('/panel/publicaciones');
     } catch (err: any) {
       setError(err.message || 'Error al crear la publicación');
