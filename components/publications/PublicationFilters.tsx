@@ -5,7 +5,7 @@ import { useCategories } from '@/hooks/usePublications';
 import { useZones, useLocalities } from '@/hooks/useLocalities';
 
 const PROVINCES = [
-  'Buenos Aires', 'CABA', 'Catamarca', 'Chaco', 'Chubut',
+  'Buenos Aires', 'Catamarca', 'Chaco', 'Chubut',
   'Córdoba', 'Corrientes', 'Entre Ríos', 'Formosa', 'Jujuy',
   'La Pampa', 'La Rioja', 'Mendoza', 'Misiones', 'Neuquén',
   'Río Negro', 'Salta', 'San Juan', 'San Luis', 'Santa Cruz',

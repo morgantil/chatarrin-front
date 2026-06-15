@@ -28,7 +28,7 @@ const createSchema = z.object({
 type CreateForm = z.infer<typeof createSchema>;
 
 const PROVINCES = [
-  'Buenos Aires', 'CABA', 'Catamarca', 'Chaco', 'Chubut',
+  'Buenos Aires', 'Catamarca', 'Chaco', 'Chubut',
   'Córdoba', 'Corrientes', 'Entre Ríos', 'Formosa', 'Jujuy',
   'La Pampa', 'La Rioja', 'Mendoza', 'Misiones', 'Neuquén',
   'Río Negro', 'Salta', 'San Juan', 'San Luis', 'Santa Cruz',
