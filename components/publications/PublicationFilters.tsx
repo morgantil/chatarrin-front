@@ -109,23 +109,6 @@ export function PublicationFilters({ filters, onChange, onReset, sortBy, onSortC
           </select>
         )}
 
-        {/* Kg mínimo */}
-        <input
-          type="number"
-          placeholder="Kg mín."
-          className="shrink-0 w-24 h-8 px-3 text-xs font-medium rounded-full border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-brand transition-colors"
-          value={filters.minKg || ''}
-          onChange={(e) => onChange('minKg', e.target.value ? Number(e.target.value) : undefined)}
-        />
-
-        {/* Precio máx */}
-        <input
-          type="number"
-          placeholder="Precio máx."
-          className="shrink-0 w-28 h-8 px-3 text-xs font-medium rounded-full border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-brand transition-colors"
-          value={filters.maxPrice || ''}
-          onChange={(e) => onChange('maxPrice', e.target.value ? Number(e.target.value) : undefined)}
-        />
 
         {/* Solo con foto */}
         <label className="shrink-0 flex items-center gap-1.5 h-8 px-3 text-xs font-medium rounded-full border border-border bg-card text-foreground cursor-pointer hover:border-brand/50 transition-colors select-none">
