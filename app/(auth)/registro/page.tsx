@@ -1,6 +1,6 @@
 'use client';
 
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { registerSchema, type RegisterForm } from '@/lib/validations';
 import { api } from '@/lib/api';
@@ -9,7 +9,6 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useState } from 'react';
 import type { AuthResponse } from '@/types';
 import { LocalitySelector } from '@/components/common/LocalitySelector';
@@ -110,25 +109,21 @@ export default function RegisterPage() {
 
           <div className="flex flex-col gap-1.5">
             <Label className="text-sm font-semibold">Provincia</Label>
-            <Controller
-              name="province"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  onValueChange={(v) => { field.onChange(v); setSelectedProvince(v); setLocalityId(''); }}
-                  value={field.value || ''}
-                >
-                  <SelectTrigger className="h-11 rounded-xl border-border bg-card">
-                    <SelectValue placeholder="Seleccioná tu provincia" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {PROVINCES.map((p) => (
-                      <SelectItem key={p} value={p}>{p}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
+            <select
+              className="flex h-11 w-full rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-brand appearance-none cursor-pointer"
+              style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236B7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center' }}
+              {...register('province')}
+              onChange={(e) => {
+                register('province').onChange(e);
+                setSelectedProvince(e.target.value);
+                setLocalityId('');
+              }}
+            >
+              <option value="">Seleccioná tu provincia</option>
+              {PROVINCES.map((p) => (
+                <option key={p} value={p}>{p}</option>
+              ))}
+            </select>
             {errors.province && <p className="text-xs text-red-500">{errors.province.message}</p>}
           </div>
 
