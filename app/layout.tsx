@@ -8,7 +8,7 @@ import { Footer } from '@/components/layout/Footer';
 const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700', '900'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
-  title: 'Chatarrin — Marketplace de metales reciclables',
+  title: 'Don Chatarrin — Marketplace de metales reciclables',
   description: 'Comprá y vendé metales reciclables en Argentina. Aluminio, cobre, hierro, bronce y más.',
 };
 

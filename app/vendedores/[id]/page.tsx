@@ -37,12 +37,12 @@ async function getSellerReviews(id: string) {
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
   const seller = await getSellerProfile(id);
-  if (!seller) return { title: 'Vendedor no encontrado — Chatarrin' };
+  if (!seller) return { title: 'Vendedor no encontrado — Don Chatarrin' };
   return {
-    title: `${seller.name} — Vendedor en Chatarrin`,
+    title: `${seller.name} — Vendedor en Don Chatarrin`,
     description: `Publicaciones activas de ${seller.name} en ${seller.province}. Marketplace de metales reciclables.`,
     openGraph: {
-      title: `${seller.name} en Chatarrin`,
+      title: `${seller.name} en Don Chatarrin`,
       description: `${seller.publications?.length ?? 0} publicaciones activas en ${seller.province}`,
     },
   };

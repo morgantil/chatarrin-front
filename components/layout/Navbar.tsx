@@ -30,7 +30,7 @@ export function Navbar() {
 
         {/* Logo */}
         <Link href="/" className="flex items-center gap-0 shrink-0">
-          <span className="text-lg font-black tracking-tight text-foreground">chatar</span>
+          <span className="text-lg font-black tracking-tight text-foreground">don chatar</span>
           <span className="text-lg font-black tracking-tight text-brand">rin</span>
         </Link>
 

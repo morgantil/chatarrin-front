@@ -7,7 +7,7 @@ export function Footer() {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex flex-col items-center sm:items-start gap-1">
             <Link href="/" className="flex items-center gap-0">
-              <span className="text-sm font-black tracking-tight text-foreground">chatar</span>
+              <span className="text-sm font-black tracking-tight text-foreground">don chatar</span>
               <span className="text-sm font-black tracking-tight text-brand">rin</span>
             </Link>
             <p className="text-xs text-muted-foreground">Marketplace de metales reciclables · Argentina</p>
@@ -28,7 +28,7 @@ export function Footer() {
 
         <div className="mt-6 pt-4 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} Chatarrin. Todos los derechos reservados.
+            © {new Date().getFullYear()} Don Chatarrin. Todos los derechos reservados.
           </p>
           <div className="flex items-center gap-4">
             <Link href="/terminos" className="text-xs text-muted-foreground hover:text-foreground transition-colors">

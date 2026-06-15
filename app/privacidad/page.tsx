@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-export const metadata = { title: 'Política de Privacidad | Chatarrin' };
+export const metadata = { title: 'Política de Privacidad | Don Chatarrin' };
 
 export default function PrivacidadPage() {
   return (

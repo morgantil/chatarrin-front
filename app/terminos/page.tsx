@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-export const metadata = { title: 'Términos y Condiciones | Chatarrin' };
+export const metadata = { title: 'Términos y Condiciones | Don Chatarrin' };
 
 export default function TerminosPage() {
   return (
@@ -15,14 +15,14 @@ export default function TerminosPage() {
         <section>
           <h2 className="font-bold text-base mb-2">1. Aceptación</h2>
           <p className="text-muted-foreground">
-            Al acceder y usar Chatarrin, aceptás estos Términos y Condiciones en su totalidad. Si no estás de acuerdo, no uses la plataforma.
+            Al acceder y usar Don Chatarrin, aceptás estos Términos y Condiciones en su totalidad. Si no estás de acuerdo, no uses la plataforma.
           </p>
         </section>
 
         <section>
           <h2 className="font-bold text-base mb-2">2. Descripción del servicio</h2>
           <p className="text-muted-foreground">
-            Chatarrin es una plataforma de marketplace que conecta vendedores de materiales reciclables con compradores en Argentina. No somos parte de las transacciones entre usuarios y no garantizamos la calidad ni existencia del material publicado.
+            Don Chatarrin es una plataforma de marketplace que conecta vendedores de materiales reciclables con compradores en Argentina. No somos parte de las transacciones entre usuarios y no garantizamos la calidad ni existencia del material publicado.
           </p>
         </section>
 
@@ -43,7 +43,7 @@ export default function TerminosPage() {
         <section>
           <h2 className="font-bold text-base mb-2">5. Pagos y visibilidad</h2>
           <p className="text-muted-foreground">
-            Los pagos de planes de visibilidad se procesan a través de MercadoPago. Una vez acreditado el pago, la visibilidad es activada automáticamente. No se realizan devoluciones salvo fallo técnico imputable a Chatarrin.
+            Los pagos de planes de visibilidad se procesan a través de MercadoPago. Una vez acreditado el pago, la visibilidad es activada automáticamente. No se realizan devoluciones salvo fallo técnico imputable a Don Chatarrin.
           </p>
         </section>
 
@@ -57,7 +57,7 @@ export default function TerminosPage() {
         <section>
           <h2 className="font-bold text-base mb-2">7. Limitación de responsabilidad</h2>
           <p className="text-muted-foreground">
-            Chatarrin no se hace responsable por daños directos o indirectos derivados del uso de la plataforma, incluyendo disputas entre usuarios, pérdidas económicas, o interrupciones del servicio.
+            Don Chatarrin no se hace responsable por daños directos o indirectos derivados del uso de la plataforma, incluyendo disputas entre usuarios, pérdidas económicas, o interrupciones del servicio.
           </p>
         </section>
 

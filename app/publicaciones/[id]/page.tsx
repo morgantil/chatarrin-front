@@ -222,7 +222,7 @@ export default function PublicationDetailPage() {
               <div className="flex flex-col gap-2">
                 <button
                   onClick={() => {
-                    const msg = encodeURIComponent(`Hola, vi tu publicación de ${pub.title} en Chatarrin, ¿sigue disponible?`);
+                    const msg = encodeURIComponent(`Hola, vi tu publicación de ${pub.title} en Don Chatarrin, ¿sigue disponible?`);
                     window.open(`https://wa.me/54${pub.seller.whatsapp}?text=${msg}`, '_blank');
                   }}
                   className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-semibold py-3 rounded-full text-sm transition-colors"
@@ -233,7 +233,7 @@ export default function PublicationDetailPage() {
                 <button
                   onClick={() => {
                     const url = window.location.href;
-                    const msg = encodeURIComponent(`Mirá esta publicación en Chatarrin: ${pub.title} — ${url}`);
+                    const msg = encodeURIComponent(`Mirá esta publicación en Don Chatarrin: ${pub.title} — ${url}`);
                     window.open(`https://wa.me/?text=${msg}`, '_blank');
                   }}
                   className="flex items-center justify-center gap-2 border border-border text-muted-foreground hover:text-foreground hover:border-foreground/30 font-medium py-2.5 rounded-full text-sm transition-colors"
