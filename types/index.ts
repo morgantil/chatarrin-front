@@ -27,6 +27,7 @@ export interface Locality {
   id: string;
   name: string;
   province: string;
+  zone?: string;
   slug?: string;
 }
 
