@@ -13,10 +13,18 @@ import { VisibilityBadge } from '@/components/publications/VisibilityBadge';
 import {
   LayoutDashboard, Users, Package, ShieldCheck,
   Tag, Settings, FileText, Download, Check,
-  CheckCircle, XCircle, PlusCircle
+  CheckCircle, XCircle, PlusCircle, MapPin, Pencil, X as XIcon
 } from 'lucide-react';
 
-type Tab = 'dashboard' | 'usuarios' | 'publicaciones' | 'verificaciones' | 'categorias' | 'settings' | 'reportes';
+const PROVINCES = [
+  'Buenos Aires', 'Catamarca', 'Chaco', 'Chubut',
+  'Córdoba', 'Corrientes', 'Entre Ríos', 'Formosa', 'Jujuy',
+  'La Pampa', 'La Rioja', 'Mendoza', 'Misiones', 'Neuquén',
+  'Río Negro', 'Salta', 'San Juan', 'San Luis', 'Santa Cruz',
+  'Santa Fe', 'Santiago del Estero', 'Tierra del Fuego', 'Tucumán',
+];
+
+type Tab = 'dashboard' | 'usuarios' | 'publicaciones' | 'verificaciones' | 'categorias' | 'localidades' | 'settings' | 'reportes';
 
 // ── Dashboard ────────────────────────────────────────────────────────────────
 function Dashboard() {
@@ -234,6 +242,179 @@ function Categorias() {
   );
 }
 
+// ── Localidades ──────────────────────────────────────────────────────────────
+function Localidades() {
+  const queryClient = useQueryClient();
+  const [province, setProvince] = useState('Buenos Aires');
+  const [zoneFilter, setZoneFilter] = useState('');
+  const [showInactive, setShowInactive] = useState(false);
+  const [editing, setEditing] = useState<any | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [form, setForm] = useState({ name: '', zone: '', isActive: true });
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['admin-localities', province, zoneFilter, showInactive],
+    queryFn: () => {
+      const params = new URLSearchParams({ province, page: '1', limit: '100' });
+      if (zoneFilter) params.set('zone', zoneFilter);
+      if (!showInactive) params.set('isActive', 'true');
+      return api.get<any>(`/api/admin/localities?${params}`);
+    },
+  });
+
+  const { data: zonesData } = useQuery({
+    queryKey: ['zones', province],
+    queryFn: () => api.get<string[]>(`/api/localities/zones?province=${encodeURIComponent(province)}`),
+    enabled: !!province,
+  });
+
+  const createMutation = useMutation({
+    mutationFn: () => api.post('/api/admin/localities', { name: form.name, province, zone: form.zone || undefined }),
+    onSuccess: () => { setCreating(false); setForm({ name: '', zone: '', isActive: true }); queryClient.invalidateQueries({ queryKey: ['admin-localities'] }); },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) => api.put(`/api/admin/localities/${id}`, data),
+    onSuccess: () => { setEditing(null); queryClient.invalidateQueries({ queryKey: ['admin-localities'] }); queryClient.invalidateQueries({ queryKey: ['zones'] }); },
+  });
+
+  const localities: any[] = data?.localities ?? [];
+  const zones: string[] = zonesData ?? [];
+
+  const inputClass = "flex h-9 w-full rounded-lg border border-border bg-card px-3 text-sm focus:outline-none focus:ring-1 focus:ring-brand";
+  const selectClass = "flex h-9 w-full rounded-lg border border-border bg-card px-3 text-sm focus:outline-none focus:ring-1 focus:ring-brand appearance-none cursor-pointer";
+
+  return (
+    <div className="flex flex-col gap-5">
+      {/* Filtros */}
+      <div className="flex flex-wrap gap-3 items-end">
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-muted-foreground font-medium">Provincia</label>
+          <select value={province} onChange={(e) => { setProvince(e.target.value); setZoneFilter(''); }} className={selectClass + ' w-48'}>
+            {PROVINCES.map((p) => <option key={p} value={p}>{p}</option>)}
+          </select>
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-muted-foreground font-medium">Zona</label>
+          <select value={zoneFilter} onChange={(e) => setZoneFilter(e.target.value)} className={selectClass + ' w-36'}>
+            <option value="">Todas</option>
+            {zones.map((z) => <option key={z} value={z}>{z}</option>)}
+          </select>
+        </div>
+        <label className="flex items-center gap-2 text-sm cursor-pointer pb-1">
+          <input type="checkbox" checked={showInactive} onChange={(e) => setShowInactive(e.target.checked)} className="rounded" />
+          Ver inactivas
+        </label>
+        <button
+          onClick={() => { setCreating(true); setForm({ name: '', zone: zones[0] ?? '', isActive: true }); }}
+          className="flex items-center gap-1.5 bg-brand hover:bg-brand-dark text-white text-sm font-semibold px-4 h-9 rounded-lg transition-colors ml-auto"
+        >
+          <PlusCircle className="h-4 w-4" /> Nueva localidad
+        </button>
+      </div>
+
+      {/* Modal crear */}
+      {creating && (
+        <div className="p-4 rounded-xl border border-brand/30 bg-card flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-semibold">Nueva localidad en {province}</p>
+            <button onClick={() => setCreating(false)}><XIcon className="h-4 w-4 text-muted-foreground" /></button>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <input placeholder="Nombre" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} className={inputClass + ' w-48'} />
+            <input placeholder="Zona (ej: Oeste)" value={form.zone} onChange={(e) => setForm((f) => ({ ...f, zone: e.target.value }))} list="zonas-list" className={inputClass + ' w-36'} />
+            <datalist id="zonas-list">{zones.map((z) => <option key={z} value={z} />)}</datalist>
+            <button
+              disabled={!form.name.trim() || createMutation.isPending}
+              onClick={() => createMutation.mutate()}
+              className="flex items-center gap-1 bg-brand hover:bg-brand-dark disabled:opacity-50 text-white text-sm font-semibold px-4 h-9 rounded-lg transition-colors"
+            >
+              <Check className="h-4 w-4" /> Guardar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Tabla */}
+      {isLoading ? <LoadingSpinner /> : localities.length === 0 ? (
+        <EmptyState message="No hay localidades para esta provincia" />
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b text-left text-muted-foreground">
+                <th className="py-2 pr-4 font-medium">Localidad</th>
+                <th className="py-2 pr-4 font-medium">Zona</th>
+                <th className="py-2 pr-4 font-medium">Estado</th>
+                <th className="py-2 font-medium text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {localities.map((loc) => (
+                <tr key={loc.id} className="border-b hover:bg-muted/40">
+                  {editing?.id === loc.id ? (
+                    <>
+                      <td className="py-2 pr-4">
+                        <input value={editing.name} onChange={(e) => setEditing((p: any) => ({ ...p, name: e.target.value }))} className={inputClass + ' w-40'} />
+                      </td>
+                      <td className="py-2 pr-4">
+                        <input value={editing.zone ?? ''} onChange={(e) => setEditing((p: any) => ({ ...p, zone: e.target.value }))} list="zonas-list" className={inputClass + ' w-28'} />
+                      </td>
+                      <td className="py-2 pr-4">
+                        <select value={editing.isActive ? 'true' : 'false'} onChange={(e) => setEditing((p: any) => ({ ...p, isActive: e.target.value === 'true' }))} className={selectClass + ' w-28'}>
+                          <option value="true">Activa</option>
+                          <option value="false">Inactiva</option>
+                        </select>
+                      </td>
+                      <td className="py-2 text-right flex gap-2 justify-end">
+                        <button onClick={() => updateMutation.mutate({ id: loc.id, data: { name: editing.name, zone: editing.zone || undefined, isActive: editing.isActive } })}
+                          className="text-xs bg-brand text-white px-3 py-1.5 rounded-lg font-medium hover:bg-brand-dark">
+                          Guardar
+                        </button>
+                        <button onClick={() => setEditing(null)} className="text-xs border border-border px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground">
+                          Cancelar
+                        </button>
+                      </td>
+                    </>
+                  ) : (
+                    <>
+                      <td className="py-2 pr-4 font-medium">{loc.name}</td>
+                      <td className="py-2 pr-4">
+                        {loc.zone ? (
+                          <span className="text-xs bg-secondary px-2 py-0.5 rounded-full text-muted-foreground">{loc.zone}</span>
+                        ) : (
+                          <span className="text-xs text-muted-foreground/50">—</span>
+                        )}
+                      </td>
+                      <td className="py-2 pr-4">
+                        <span className={`text-xs font-medium ${loc.isActive ? 'text-green-600' : 'text-red-500'}`}>
+                          {loc.isActive ? 'Activa' : 'Inactiva'}
+                        </span>
+                      </td>
+                      <td className="py-2 text-right flex gap-2 justify-end">
+                        <button onClick={() => setEditing({ ...loc })} className="flex items-center gap-1 text-xs border border-border px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground transition-colors">
+                          <Pencil className="h-3 w-3" /> Editar
+                        </button>
+                        <button
+                          onClick={() => updateMutation.mutate({ id: loc.id, data: { isActive: !loc.isActive } })}
+                          className="text-xs border border-border px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          {loc.isActive ? 'Desactivar' : 'Activar'}
+                        </button>
+                      </td>
+                    </>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <p className="text-xs text-muted-foreground mt-3">{localities.length} localidades</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Settings ─────────────────────────────────────────────────────────────────
 function SettingsPanel() {
   const queryClient = useQueryClient();
@@ -374,6 +555,7 @@ const TABS: { id: Tab; label: string; icon: any }[] = [
   { id: 'publicaciones',  label: 'Publicaciones',    icon: Package },
   { id: 'verificaciones', label: 'Verificaciones',   icon: ShieldCheck },
   { id: 'categorias',     label: 'Categorías',       icon: Tag },
+  { id: 'localidades',    label: 'Localidades',      icon: MapPin },
   { id: 'settings',       label: 'Precios y config', icon: Settings },
   { id: 'reportes',       label: 'Reportes',         icon: FileText },
 ];
@@ -384,6 +566,7 @@ const TAB_TITLES: Record<Tab, string> = {
   publicaciones: 'Publicaciones',
   verificaciones: 'Verificaciones pendientes',
   categorias: 'Categorías de material',
+  localidades: 'Localidades y zonas',
   settings: 'Precios y configuración',
   reportes: 'Reporte de pagos',
 };
@@ -422,6 +605,7 @@ export default function AdminPage() {
           {tab === 'publicaciones'  && <Publicaciones />}
           {tab === 'verificaciones' && <Verificaciones />}
           {tab === 'categorias'     && <Categorias />}
+          {tab === 'localidades'    && <Localidades />}
           {tab === 'settings'       && <SettingsPanel />}
           {tab === 'reportes'       && <Reportes />}
         </div>
