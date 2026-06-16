@@ -123,7 +123,7 @@ export default function MyPublicationsPage() {
       priceArs: pub.priceArs ? String(pub.priceArs) : '',
       isNegotiable: pub.isNegotiable,
       province: pub.province,
-      locality: pub.locality ?? '',
+      locality: pub.locality?.name ?? '',
       categoryId: pub.category.id,
       photos: pub.photos,
     });
