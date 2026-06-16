@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { createPortal } from "react-dom"
 import { cn } from "@/lib/utils"
 import { X } from "lucide-react"
 
@@ -35,7 +36,9 @@ SheetTrigger.displayName = "SheetTrigger"
 
 const SheetContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement> & { side?: "left" | "right" }>(({ className, children, side = "right", ...props }, ref) => {
   const { open, setOpen } = React.useContext(SheetContext)
-  const contentRef = React.useRef<HTMLDivElement>(null)
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => { setMounted(true) }, [])
 
   React.useEffect(() => {
     if (!open) return
@@ -46,26 +49,27 @@ const SheetContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLD
     return () => document.removeEventListener("keydown", handleKeyDown)
   }, [open, setOpen])
 
-  if (!open) return null
+  if (!mounted || !open) return null
 
-  return (
+  return createPortal(
     <>
       <div className="fixed inset-0 z-50 bg-black/80" onClick={() => setOpen(false)} />
       <div
-        ref={contentRef}
+        ref={ref}
         className={cn(
-          "fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out",
-          side === "right" ? "inset-y-0 right-0 h-full w-3/4 max-w-sm border-l" : "inset-y-0 left-0 h-full w-3/4 max-w-sm border-r",
+          "fixed z-50 gap-4 bg-background p-6 shadow-lg",
+          side === "right" ? "inset-y-0 right-0 h-full w-3/4 max-w-sm border-l border-border" : "inset-y-0 left-0 h-full w-3/4 max-w-sm border-r border-border",
           className
         )}
         {...props}
       >
-        <button className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100" onClick={() => setOpen(false)}>
+        <button className="absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100" onClick={() => setOpen(false)}>
           <X className="h-4 w-4" />
         </button>
         {children}
       </div>
-    </>
+    </>,
+    document.body
   )
 })
 SheetContent.displayName = "SheetContent"
